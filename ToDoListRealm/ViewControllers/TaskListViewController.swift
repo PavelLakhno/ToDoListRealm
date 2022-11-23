@@ -8,6 +8,12 @@
 import UIKit
 import RealmSwift
 
+enum TaskListStatus {
+    case empty
+    case progress
+    case completed
+}
+
 class TaskListViewController: UITableViewController {
 
     private var taskLists: Results<TaskList>!
@@ -41,7 +47,17 @@ class TaskListViewController: UITableViewController {
         var content = cell.defaultContentConfiguration()
         let taskList = taskLists[indexPath.row]
         content.text = taskList.name
-        content.secondaryText = "\(taskList.tasks.count)"
+        
+        let statusTaskList = getTaskListStatus(taskList)
+        switch statusTaskList {
+        case .empty:
+            content.secondaryText = "0"
+        case .progress:
+            content.secondaryText = "\(taskList.tasks.filter { !$0.isComplete }.count)"
+        case .completed:
+            content.secondaryText = "\u{2713}"
+        }
+        
         cell.contentConfiguration = content
         return cell
     }
@@ -103,6 +119,23 @@ class TaskListViewController: UITableViewController {
                 tableView.reloadData()
             }
         }
+    }
+    
+    private func getTaskListStatus(_ taskList: TaskList ) -> TaskListStatus {
+        let status: TaskListStatus!
+        
+        if taskList.tasks.isEmpty {
+            status = .empty
+        } else {
+            let completedTasks = taskList.tasks.filter { $0.isComplete }
+            if completedTasks.count == taskList.tasks.count {
+                status = .completed
+            } else {
+                status = .progress
+            }
+        }
+
+        return status
     }
 }
 
