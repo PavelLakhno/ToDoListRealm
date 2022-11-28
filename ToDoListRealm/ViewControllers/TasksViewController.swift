@@ -73,15 +73,20 @@ class TasksViewController: UITableViewController {
         
         let doneTitle = indexPath.section == 0 ? "Done" : "Undone"
         
-        let doneAction = UIContextualAction(style: .normal, title: doneTitle) { [unowned self] _, _, isDone in
+        let doneAction = UIContextualAction(style: .normal, title: doneTitle) { [weak self] _, _, isDone in
             StorageManager.shared.done(task)
-            
-            let indexPathCurrentTask = IndexPath(row: currentTasks.count - 1, section: 0)
-            let indexPathCompletedTask = IndexPath(row: completedTasks.count - 1, section: 1)
-            let indexPathDestination = indexPath.section == 0 ? indexPathCompletedTask : indexPathCurrentTask
+            let currentTaskIndex = IndexPath(
+                row: self?.currentTasks.index(of: task) ?? 0,
+                section: 0
+            )
+            let completedTaskIndex = IndexPath(
+                row: self?.completedTasks.index(of: task) ?? 0,
+                section: 1
+            )
+            let indexPathDestination = indexPath.section == 0 ? completedTaskIndex : currentTaskIndex
             tableView.moveRow(at: indexPath, to: indexPathDestination)
             
-            task.isComplete ? isDone(false) : isDone(true)
+            isDone(true)
         }
 
         editAction.backgroundColor = .orange

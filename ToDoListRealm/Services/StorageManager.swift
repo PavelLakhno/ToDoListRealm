@@ -73,6 +73,7 @@ class StorageManager {
     func done(_ task: Task) {
         write {
             task.setValue(!task.isComplete, forKey: "isComplete")
+            //task.isComplete.toggle()
         }
     }
     
